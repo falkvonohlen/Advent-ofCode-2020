@@ -1,6 +1,8 @@
 use std::io;
 
-use advent_of_code_2020::{number_processing, password_debug, toboggan_navigation};
+use advent_of_code_2020::{
+    northpol_password_validation, number_processing, password_debug, toboggan_navigation,
+};
 
 fn main() {
     println!("Select which function you want to call:");
@@ -10,6 +12,8 @@ fn main() {
     println!("4: Password Debug Part 2");
     println!("5: Navigation Part 1");
     println!("6: Navigation Part 2");
+    println!("7: Passport validation Part 1");
+    println!("8: Passport validation Part 2");
 
     let mut selection = String::new();
     io::stdin()
@@ -22,12 +26,14 @@ fn main() {
     };
 
     match selection {
-        1 => number_processing::solve_day1_puzzle_part1(),
-        2 => number_processing::solve_day1_puzzle_part2(),
-        3 => password_debug::solve_day2_puzzle_part1(),
-        4 => password_debug::solve_day2_puzzle_part2(),
-        5 => toboggan_navigation::solve_day3_part1(),
-        6 => toboggan_navigation::solve_day3_part2(),
+        1 => number_processing::part1(),
+        2 => number_processing::part2(),
+        3 => password_debug::part1(),
+        4 => password_debug::part2(),
+        5 => toboggan_navigation::part1(),
+        6 => toboggan_navigation::part2(),
+        7 => northpol_password_validation::part1(),
+        8 => northpol_password_validation::part2(),
         _ => println!("Invalid input!"),
     };
 }

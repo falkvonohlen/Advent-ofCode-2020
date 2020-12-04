@@ -66,7 +66,7 @@ impl Map {
     }
 }
 
-pub fn solve_day3_part1() {
+pub fn part1() {
     let input = load_strings("./resources/Day3Input.txt").expect("Failed to read input");
     let map = Map::from(input);
     println!(
@@ -75,7 +75,7 @@ pub fn solve_day3_part1() {
     );
 }
 
-pub fn solve_day3_part2() {
+pub fn part2() {
     let input = load_strings("./resources/Day3Input.txt").expect("Failed to read input");
     let map = Map::from(input);
     let test_routes = vec![(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];

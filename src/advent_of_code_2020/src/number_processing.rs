@@ -18,7 +18,7 @@ impl VecExtension<i32> for Vec<i32> {
     }
 }
 
-pub fn solve_day1_puzzle_part1() {
+pub fn part1() {
     let target_number = 2020;
     let input_file = path::Path::new("./resources/Day1Input.txt");
     let input_file = fs::canonicalize(&input_file)
@@ -54,7 +54,7 @@ pub fn solve_day1_puzzle_part1() {
     };
 }
 
-pub fn solve_day1_puzzle_part2() {
+pub fn part2() {
     let target_number = 2020;
     let input_file = path::Path::new("./resources/Day1Input.txt");
     let input_file = fs::canonicalize(&input_file)
