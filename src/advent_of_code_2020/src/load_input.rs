@@ -39,3 +39,23 @@ pub fn load_strings(filename: &str) -> Result<Vec<String>, String> {
 
     Ok(v)
 }
+
+pub fn load_empty_line_seperated(filename: &str) -> Result<Vec<Vec<String>>, String> {
+    let lines = load_strings(filename)?;
+    let mut batches = vec![];
+    let mut next_line: usize = 0;
+
+    while next_line < lines.len() {
+        let unparsed_input = &lines[next_line..];
+        let empty_line = unparsed_input.iter().position(|l| l.as_str() == "");
+        let end = match empty_line {
+            Some(num) => num + next_line,
+            None => lines.len(),
+        };
+        let batch = lines[next_line..end].to_vec();
+        batches.push(batch);
+        next_line = end + 1;
+    }
+
+    Ok(batches)
+}

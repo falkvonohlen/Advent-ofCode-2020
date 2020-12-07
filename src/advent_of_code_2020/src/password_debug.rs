@@ -55,7 +55,7 @@ impl PasswordWithPolicy {
     }
 }
 
-pub fn solve_day2_puzzle_part1() {
+pub fn part1() {
     let input_file =
         load_input::load_strings("./resources/Day2Input.txt").expect("Failed to read the input");
 
@@ -73,7 +73,7 @@ pub fn solve_day2_puzzle_part1() {
     println!("{} are valid", count);
 }
 
-pub fn solve_day2_puzzle_part2() {
+pub fn part2() {
     let input_file =
         load_input::load_strings("./resources/Day2Input.txt").expect("Failed to read the input");
 
