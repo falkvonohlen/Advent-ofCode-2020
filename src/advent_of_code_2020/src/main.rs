@@ -1,9 +1,6 @@
 use std::io;
 
-use advent_of_code_2020::{
-    boarding_passes, declaration_forms, luggage_rules, northpol_password_validation,
-    number_processing, password_debug, toboggan_navigation,
-};
+use advent_of_code_2020::{boarding_passes, declaration_forms, handheld_game_console, luggage_rules, northpol_password_validation, number_processing, password_debug, toboggan_navigation};
 
 fn main() {
     println!("Select which function you want to call:");
@@ -21,6 +18,8 @@ fn main() {
     println!("12: Declaration Forms Part 2");
     println!("13: Luggage Rules Part 1");
     println!("14: Luggage Rules Part 2");
+    println!("15: Game Console Part 1");
+    println!("16: Game Console Part 2");
 
     let mut selection = String::new();
     io::stdin()
@@ -47,6 +46,8 @@ fn main() {
         12 => declaration_forms::part2(),
         13 => luggage_rules::part1(),
         14 => luggage_rules::part2(),
+        15 => handheld_game_console::part1(),
+        16 => handheld_game_console::part2(),
         _ => println!("Invalid input!"),
     };
 }

@@ -42,7 +42,7 @@ impl LuggageRule {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct ContainingRule {
     color: String,
     count: u32,
@@ -134,6 +134,40 @@ impl LuggageRuleSet {
 
         carries
     }
+
+    fn get_containing_rules(&self, color: &String) -> Vec<ContainingRule> {
+        let rules = self.rules.iter().find(|r| &r.color == color);
+
+        match rules {
+            None => vec![],
+            Some(r) => match &r.contains {
+                None => vec![],
+                Some(c) => c.to_vec(),
+            },
+        }
+    }
+
+    fn containing_count(&self, color: &String) -> u32 {
+        let mut rules: Vec<(u32, Vec<ContainingRule>)> =
+            vec![(1, self.get_containing_rules(color))];
+        let mut count: u32 = 0;
+
+        while rules.len() > 0 {
+            let mut next_rules: Vec<(u32, Vec<ContainingRule>)> = vec![];
+            for (multiplier, rules) in rules {
+                for rule in rules {
+                    let nested_rules = self.get_containing_rules(&rule.color);
+                    count += rule.count * multiplier;
+                    if nested_rules.len() > 0 {
+                        next_rules.push((rule.count * multiplier, nested_rules));
+                    }
+                }
+            }
+            rules = next_rules;
+        }
+
+        count
+    }
 }
 
 pub fn part1() {
@@ -144,13 +178,19 @@ pub fn part1() {
     println!("{} bags can contain a shiny gold bag", bags.len());
 }
 
-pub fn part2() {}
+pub fn part2() {
+    let input =
+    load_input::load_strings("./resources/Day7Input.txt").expect("Failed to load input");
+    let rule_set = LuggageRuleSet::from(input);
+    let bags = rule_set.containing_count(&"shiny gold".to_string());
+    println!("One shiny gold bag must contain {} other bags", bags);
+}
 
 #[cfg(test)]
 pub mod test {
     use super::*;
 
-    fn get_input() -> Vec<String> {
+    fn get_input_1() -> Vec<String> {
         vec![
             "light red bags contain 1 bright white bag, 2 muted yellow bags.".to_string(),
             "dark orange bags contain 3 bright white bags, 4 muted yellow bags.".to_string(),
@@ -164,11 +204,31 @@ pub mod test {
         ]
     }
 
+    fn get_input_2() -> Vec<String> {
+        vec![
+            "shiny gold bags contain 2 dark red bags.".to_string(),
+            "dark red bags contain 2 dark orange bags.".to_string(),
+            "dark orange bags contain 2 dark yellow bags.".to_string(),
+            "dark yellow bags contain 2 dark green bags.".to_string(),
+            "dark green bags contain 2 dark blue bags.".to_string(),
+            "dark blue bags contain 2 dark violet bags.".to_string(),
+            "dark violet bags contain no other bags.".to_string(),
+        ]
+    }
+
     #[test]
-    fn test_load_luggage_rule() {
-        let input = get_input();
+    fn test_can_carry_count() {
+        let input = get_input_1();
         let rule_set = LuggageRuleSet::from(input);
         let bags = rule_set.all_bags_which_carry(&"shiny gold".to_string());
         assert_eq!(4, bags.len());
+    }
+
+    #[test]
+    fn test_carries_count() {
+        let input = get_input_2();
+        let rule_set = LuggageRuleSet::from(input);
+        let bags = rule_set.containing_count(&"shiny gold".to_string());
+        assert_eq!(126, bags);
     }
 }
