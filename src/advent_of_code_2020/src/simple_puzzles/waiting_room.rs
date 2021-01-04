@@ -1,43 +1,74 @@
-use std::{cmp, collections::HashMap};
+use std::collections::HashMap;
 
-struct WaitingArea {
-    tiles: HashMap<(u32, u32), AreaTile>,
+struct WaitingArea<'a> {
+    tiles: Vec<AreaTile>,
+    neighborhood: HashMap<(u32, u32), Vec<&'a Seat>>,
 }
 
-impl WaitingArea {
-    fn from(input: Vec<String>) -> WaitingArea {
-        let mut tiles: HashMap<(u32, u32), AreaTile> = HashMap::new();
+impl<'a> WaitingArea<'a> {
+    fn from(input: Vec<String>) -> WaitingArea<'a> {
+        let mut tiles: Vec<AreaTile> = Vec::new();
         let mut y = 0;
         for line in input {
             let mut x = 0;
             for c in line.chars() {
-                tiles.insert((x, y), AreaTile::from(c, x, y));
+                tiles.push(AreaTile::from(c, x, y));
                 x += 1;
             }
             y += 1;
         }
 
-        WaitingArea { tiles }
+        let mut area = WaitingArea {
+            tiles,
+            neighborhood: HashMap::new(),
+        };
+        area.set_neigborhood();
+        area
     }
 
-    fn get_adjacent_seats(&self, seat: &Seat) -> Vec<&Seat> {
-        let mut result: Vec<&Seat> = vec![];
-        for x_pos in (cmp::max(0, seat.x_position - 1))..(seat.x_position + 1) {
-            for y_pos in (cmp::max(0, seat.y_position - 1))..(seat.y_position + 1) {
-                match self.tiles.get(&(x_pos, y_pos)) {
-                    Some(t) => match t {
-                        AreaTile::Seat(s) => result.push(s),
-                        _ => (),
-                    },
-                    None => (),
-                }
-            }
+    fn set_neigborhood(&'a mut self) {
+        let positions = self
+            .tiles
+            .iter()
+            .filter_map(|t| match t {
+                AreaTile::Seat(s) => Some((s.x_position, s.y_position)),
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+
+        for (x_position, y_position) in positions {
+            let adjacent_seats: Vec<&Seat> = self
+                .tiles
+                .iter()
+                .filter_map(|a| match a {
+                    AreaTile::Seat(s) => {
+                        if s.x_position >= x_position - 1
+                            && s.x_position <= x_position + 1
+                            && s.y_position >= y_position - 1
+                            && s.y_position <= y_position + 1
+                        {
+                            Some(s)
+                        } else {
+                            None
+                        }
+                    }
+                    _ => None,
+                })
+                .collect();
+            self.neighborhood
+                .insert((x_position, y_position), adjacent_seats);
         }
-        result
+    }
+
+    fn is_stable(&self) -> bool {
+        self.tiles.iter().all(|t| match t {
+            AreaTile::Seat(s) => s.current_status == s.previous_status,
+            _ => true,
+        })
     }
 
     fn prepare_transition(&mut self) {
-        for tile in self.tiles.values_mut() {
+        for tile in self.tiles.iter_mut() {
             match tile {
                 AreaTile::Seat(s) => {
                     s.previous_status = s.current_status.clone();
@@ -49,17 +80,47 @@ impl WaitingArea {
     }
 
     fn transition(&mut self) {
-        for tile in self.tiles.values_mut() {
+        for tile in self.tiles.iter_mut() {
             match tile {
                 AreaTile::Seat(seat) => {
-                    let occupied = self
-                        .get_adjacent_seats(seat)
-                        .into_iter()
-                        .filter(|s| s.previous_status == SeatStatus::Occupied);
+                    let adjacent_occupied = self
+                        .neighborhood
+                        .get(&(seat.x_position, seat.y_position))
+                        .map(|seats| {
+                            seats
+                                .iter()
+                                .filter(|s| s.previous_status == SeatStatus::Occupied)
+                                .count()
+                        })
+                        .expect("Failed to determin occupied adjacent seats");
+
+                    seat.current_status = match seat.previous_status {
+                        SeatStatus::Occupied => {
+                            if adjacent_occupied >= 4 {
+                                SeatStatus::Empty
+                            } else {
+                                SeatStatus::Occupied
+                            }
+                        }
+                        SeatStatus::Empty => {
+                            if adjacent_occupied > 0 {
+                                SeatStatus::Empty
+                            } else {
+                                SeatStatus::Occupied
+                            }
+                        }
+                        _ => panic!("Unknown Seat status"),
+                    }
                 }
                 AreaTile::Floor => (),
             }
         }
+    }
+
+    fn transition_one_round(&mut self) -> bool {
+        self.prepare_transition();
+        self.transition();
+        self.is_stable()
     }
 }
 
@@ -83,7 +144,6 @@ impl AreaTile {
         AreaTile::Seat(seat)
     }
 }
-
 struct Seat {
     x_position: u32,
     y_position: u32,
@@ -117,5 +177,12 @@ mod tests {
         ]
     }
 
-    fn test_load() {}
+    #[test]
+    fn test_transition() {
+        let mut area = WaitingArea::from(get_input());
+        area.set_neigborhood();
+        assert!(!area.transition_one_round());
+        assert!(!area.transition_one_round());
+        assert!(!area.transition_one_round());
+    }
 }
