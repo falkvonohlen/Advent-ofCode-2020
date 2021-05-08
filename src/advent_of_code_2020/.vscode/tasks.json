@@ -3,15 +3,12 @@
 	"tasks": [
 		{
 			"type": "cargo",
-			"subcommand": "",
+			"subcommand": "build",
 			"problemMatcher": [
 				"$rustc"
 			],
-			"group": {
-				"kind": "build",
-				"isDefault": true,
-			},
-			"label": "rust: cargo build"
+			"group": "build",
+			"label": "Rust: cargo build - advent_of_code_2020"
 		}
 	]
 }
