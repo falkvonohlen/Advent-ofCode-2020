@@ -1,7 +1,7 @@
-use core::hash::Hash;
 use std::collections::HashMap;
 
 use crate::load_input::load_strings;
+use crate::coordination::UPoint;
 
 enum MapElement {
     OpenSquare,
@@ -10,22 +10,9 @@ enum MapElement {
 }
 
 struct Map {
-    max_x: i32,
-    max_y: i32,
-    coordinates: HashMap<Point, MapElement>,
-}
-
-#[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-impl Point {
-    fn make_down_right_move(&mut self, right: i32, down: i32, right_cap: i32) {
-        self.x = (self.x + right) % (right_cap + 1);
-        self.y += down;
-    }
+    max_x: usize,
+    max_y: usize,
+    coordinates: HashMap<UPoint, MapElement>,
 }
 
 impl Map {
@@ -40,7 +27,7 @@ impl Map {
             let elements = line_to_elements(line.into());
             x = 0;
             for element in elements {
-                coordinates.insert(Point { x, y }, element);
+                coordinates.insert(UPoint { x, y }, element);
                 x += 1;
             }
             y += 1;
@@ -52,11 +39,11 @@ impl Map {
         }
     }
 
-    fn count_trees_on_route(&self, right: i32, down: i32) -> i32 {
-        let mut current_pos = Point { x: 0, y: 0 };
+    fn count_trees_on_route(&self, right: usize, down: usize) -> usize {
+        let mut current_pos = UPoint { x: 0, y: 0 };
         let mut tree_count = 0;
         while current_pos.y <= self.max_y {
-            current_pos.make_down_right_move(right, down, self.max_x);
+            current_pos = current_pos.x_capped_transform(right, down, self.max_x);
             match self.coordinates.get(&current_pos) {
                 Some(MapElement::Tree) => tree_count += 1,
                 _ => continue,

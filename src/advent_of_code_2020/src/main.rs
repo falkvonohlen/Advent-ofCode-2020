@@ -1,6 +1,8 @@
 use std::io;
 
-use advent_of_code_2020::simple_puzzles::{boarding_passes, declaration_forms, handheld_game_console, joltage_adapter, luggage_rules, northpol_password_validation, number_processing, password_debug, toboggan_navigation, xmas_encryption, waiting_room};
+use advent_of_code_2020::simple_puzzles::{boarding_passes, declaration_forms, handheld_game_console, joltage_adapter, 
+    luggage_rules, northpol_password_validation, number_processing, password_debug, toboggan_navigation, xmas_encryption, 
+    waiting_room, ferry_navigation};
 
 fn main() {
     println!("Select which function you want to call:");
@@ -26,6 +28,8 @@ fn main() {
     println!("20: Joltage Adapter Part 2");
     println!("21: Waiting Room Part 1");
     println!("22: Waiting Room Part 2");
+    println!("23: Ferry Navigation Part 1");
+    println!("24: Ferry Navigation Part 2");
 
     let mut selection = String::new();
     io::stdin()
@@ -60,6 +64,8 @@ fn main() {
         20 => joltage_adapter::part2(),
         21 => waiting_room::part1(),
         22 => waiting_room::part2(),
+        23 => ferry_navigation::part1(),
+        24 => ferry_navigation::part2(),
         _ => println!("Invalid input!"),
     };
 }
